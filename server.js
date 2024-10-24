@@ -11,6 +11,13 @@ const { body, validationResult } = require('express-validator');
 // Load environment variables
 dotenv.config();
 
+console.log('Email configuration:', {
+    service: process.env.EMAIL_SERVICE,
+    user: process.env.EMAIL_USER,
+    // Don't log the actual password
+    hasPassword: !!process.env.EMAIL_APP_PASSWORD
+})
+
 // Configure Winston logger
 const logger = winston.createLogger({
     level: 'info',
@@ -106,7 +113,7 @@ app.post('/api/submit-quote', validateQuoteRequest, async (req, res, next) => {
         // Email templates
         const adminMailOptions = {
             from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_USER,
+            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,  // Fallback to EMAIL_USER if ADMIN_EMAIL is not set
             subject: 'New Quote Request',
             replyTo: email, // Customer's email for replies
             html: `
