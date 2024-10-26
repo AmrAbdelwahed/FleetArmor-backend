@@ -106,7 +106,7 @@ app.post('/api/submit-quote', validateQuoteRequest, async (req, res, next) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { name, email, phone, company, details } = req.body;
+        const { name, email, phone, service, company, details } = req.body;
 
         const transporter = createTransporter();
 
@@ -123,6 +123,7 @@ app.post('/api/submit-quote', validateQuoteRequest, async (req, res, next) => {
                         <p><strong>Name:</strong> ${name}</p>
                         <p><strong>Email:</strong> ${email}</p>
                         <p><strong>Phone:</strong> ${phone}</p>
+                        <p><strong>Service:</strong> ${service}</p>
                         ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
                         <h3>Details:</h3>
                         <p style="white-space: pre-wrap;">${details}</p>
@@ -145,6 +146,7 @@ app.post('/api/submit-quote', validateQuoteRequest, async (req, res, next) => {
                         
                         <h3>Your Request Details:</h3>
                         <p><strong>Phone:</strong> ${phone}</p>
+                        <p><strong>Service:</strong> ${service}</p>
                         ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
                         <p><strong>Details:</strong></p>
                         <p style="white-space: pre-wrap;">${details}</p>
@@ -154,6 +156,7 @@ app.post('/api/submit-quote', validateQuoteRequest, async (req, res, next) => {
                 </div>
             `
         };
+        console.log('Sending admin email to:', adminMailOptions.to);
 
         // Send emails
         await Promise.all([
