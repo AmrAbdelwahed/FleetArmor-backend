@@ -69,17 +69,34 @@ const createTransporter = () => {
     });
 };
 
-// Input validation middleware
-const validateQuoteRequest = [
-    body('name').trim().notEmpty().withMessage('Name is required')
-        .isLength({ min: 2, max: 50 }).withMessage('Name must be between 2 and 50 characters'),
+// Add these validation middlewares after the existing validateQuoteRequest
+const validateGuardRequest = [
+    body('fullName').trim().notEmpty().withMessage('Full name is required')
+        .isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters'),
     body('email').trim().isEmail().withMessage('Valid email is required')
         .normalizeEmail(),
     body('phone').trim().matches(/^\+?[\d\s-]{10,}$/).withMessage('Valid phone number is required'),
-    body('details').trim().notEmpty().withMessage('Details are required')
-        .isLength({ max: 1000 }).withMessage('Details must not exceed 1000 characters'),
-    body('company').trim().optional().isLength({ max: 100 })
+    body('city').trim().notEmpty().withMessage('City is required'),
+    body('license').trim().notEmpty().withMessage('Security guard license is required'),
+    body('yearsOfExperience').trim().notEmpty().withMessage('Years of experience is required'),
+    body('details').trim().isLength({ max: 1000 }).withMessage('Details must not exceed 1000 characters')
 ];
+
+const validateCompanyRequest = [
+    body('companyName').trim().notEmpty().withMessage('Company name is required')
+        .isLength({ min: 2, max: 100 }).withMessage('Company name must be between 2 and 100 characters'),
+    body('email').trim().isEmail().withMessage('Valid email is required')
+        .normalizeEmail(),
+    body('phone').trim().matches(/^\+?[\d\s-]{10,}$/).withMessage('Valid phone number is required'),
+    body('firstName').trim().notEmpty().withMessage('First name is required'),
+    body('lastName').trim().notEmpty().withMessage('Last name is required'),
+    body('city').trim().notEmpty().withMessage('City is required'),
+    body('securityGuardType').trim().notEmpty().withMessage('Security guard type is required'),
+    body('numberOfGuards').trim().notEmpty().withMessage('Number of guards is required'),
+    body('service').trim().notEmpty().withMessage('Service type is required'),
+    body('details').trim().isLength({ max: 1000 }).withMessage('Details must not exceed 1000 characters')
+];
+
 
 // Error handling middleware
 const errorHandler = (err, req, res, next) => {
@@ -97,80 +114,162 @@ const errorHandler = (err, req, res, next) => {
     });
 };
 
-// Quote submission endpoint
-app.post('/api/submit-quote', validateQuoteRequest, async (req, res, next) => {
+
+app.post('/api/submit-guard', validateGuardRequest, async (req, res, next) => {
     try {
-        // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { name, email, phone, service, company, details } = req.body;
+        const { fullName, email, phone, city, license, yearsOfExperience, details } = req.body;
 
         const transporter = createTransporter();
 
-        // Email templates
+        // Email to admin
         const adminMailOptions = {
             from: process.env.EMAIL_USER,
-            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,  // Fallback to EMAIL_USER if ADMIN_EMAIL is not set
-            subject: 'New Quote Request',
-            replyTo: email, // Customer's email for replies
+            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+            subject: 'New Security Guard Application',
+            replyTo: email,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #333;">New Quote Request</h2>
+                    <h2 style="color: #333;">New Security Guard Application</h2>
                     <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-                        <p><strong>Name:</strong> ${name}</p>
+                        <p><strong>Full Name:</strong> ${fullName}</p>
                         <p><strong>Email:</strong> ${email}</p>
                         <p><strong>Phone:</strong> ${phone}</p>
-                        <p><strong>Service:</strong> ${service}</p>
-                        ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
-                        <h3>Details:</h3>
+                        <p><strong>City:</strong> ${city}</p>
+                        <p><strong>License:</strong> ${license}</p>
+                        <p><strong>Years of Experience:</strong> ${yearsOfExperience}</p>
+                        <h3>Additional Details:</h3>
                         <p style="white-space: pre-wrap;">${details}</p>
                     </div>
                 </div>
             `
         };
 
-        const customerMailOptions = {
+        // Email to applicant
+        const applicantMailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Quote Request Received - Guard Armor',
+            subject: 'Application Received - Guard Armor',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #333;">Thank you for your quote request!</h2>
-                    <p>Dear ${name},</p>
+                    <h2 style="color: #333;">Thank you for your application!</h2>
+                    <p>Dear ${fullName},</p>
                     <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-                        <p>We have received your quote request and will review it shortly. 
-                           Our team will get back to you within 24-48 business hours.</p>
+                        <p>We have received your security guard application and will review it shortly. 
+                           Our team will contact you within 2-3 business days.</p>
                         
-                        <h3>Your Request Details:</h3>
+                        <h3>Application Details:</h3>
+                        <p><strong>License:</strong> ${license}</p>
+                        <p><strong>Years of Experience:</strong> ${yearsOfExperience}</p>
+                        <p><strong>City:</strong> ${city}</p>
+                    </div>
+                    <p>If you have any questions, please don't hesitate to contact us.</p>
+                    <p>Best regards,<br>Guard Armor Team</p>
+                </div>
+            `
+        };
+
+        await Promise.all([
+            transporter.sendMail(adminMailOptions),
+            transporter.sendMail(applicantMailOptions)
+        ]);
+
+        logger.info('Guard application submitted successfully', {
+            email: email,
+            timestamp: new Date().toISOString()
+        });
+
+        res.status(200).json({ 
+            message: 'Application submitted successfully',
+            status: 'success'
+        });
+
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.post('/api/submit-company', validateCompanyRequest, async (req, res, next) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { 
+            companyName, email, phone, firstName, lastName, 
+            city, securityGuardType, numberOfGuards, service, details 
+        } = req.body;
+
+        const transporter = createTransporter();
+
+        // Email to admin
+        const adminMailOptions = {
+            from: process.env.EMAIL_USER,
+            to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+            subject: 'New Company Security Request',
+            replyTo: email,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">New Company Security Request</h2>
+                    <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
+                        <p><strong>Company:</strong> ${companyName}</p>
+                        <p><strong>Contact:</strong> ${firstName} ${lastName}</p>
+                        <p><strong>Email:</strong> ${email}</p>
                         <p><strong>Phone:</strong> ${phone}</p>
-                        <p><strong>Service:</strong> ${service}</p>
-                        ${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
-                        <p><strong>Details:</strong></p>
+                        <p><strong>City:</strong> ${city}</p>
+                        <p><strong>Security Guard Type:</strong> ${securityGuardType}</p>
+                        <p><strong>Number of Guards:</strong> ${numberOfGuards}</p>
+                        <p><strong>Service Type:</strong> ${service}</p>
+                        <h3>Additional Details:</h3>
                         <p style="white-space: pre-wrap;">${details}</p>
+                    </div>
+                </div>
+            `
+        };
+
+        // Email to company
+        const companyMailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Security Service Request Received - Guard Armor',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">Thank you for your security service request!</h2>
+                    <p>Dear ${firstName} ${lastName},</p>
+                    <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
+                        <p>We have received your security service request for ${companyName} and will review it shortly. 
+                           Our team will contact you within 24-48 business hours.</p>
+                        
+                        <h3>Request Details:</h3>
+                        <p><strong>Security Guard Type:</strong> ${securityGuardType}</p>
+                        <p><strong>Number of Guards:</strong> ${numberOfGuards}</p>
+                        <p><strong>Service Type:</strong> ${service}</p>
+                        <p><strong>City:</strong> ${city}</p>
                     </div>
                     <p>If you have any immediate questions, please don't hesitate to contact us.</p>
                     <p>Best regards,<br>Guard Armor Team</p>
                 </div>
             `
         };
-        console.log('Sending admin email to:', adminMailOptions.to);
 
-        // Send emails
         await Promise.all([
             transporter.sendMail(adminMailOptions),
-            transporter.sendMail(customerMailOptions)
+            transporter.sendMail(companyMailOptions)
         ]);
 
-        logger.info('Quote submitted successfully', {
+        logger.info('Company request submitted successfully', {
+            company: companyName,
             email: email,
             timestamp: new Date().toISOString()
         });
 
         res.status(200).json({ 
-            message: 'Quote submitted successfully',
+            message: 'Request submitted successfully',
             status: 'success'
         });
 
