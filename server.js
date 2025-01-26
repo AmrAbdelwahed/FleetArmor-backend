@@ -61,10 +61,15 @@ app.use(express.json({ limit: '10kb' })); // Body parser with size limit
 // Email transporter configuration
 const createTransporter = () => {
     return nodemailer.createTransport({
-        service: process.env.EMAIL_SERVICE,
+        host: 'smtp.mail.yahoo.com', // Yahoo's SMTP server
+        port: 465, // SSL port
+        secure: true, // Use SSL
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_APP_PASSWORD
+        },
+        tls: {
+            rejectUnauthorized: false // Bypass SSL certificate validation (use with caution)
         }
     });
 };
@@ -153,7 +158,7 @@ app.post('/api/submit-guard', validateGuardRequest, async (req, res, next) => {
         const applicantMailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Application Received - Guard Armor',
+            subject: 'Application Received - GuardArmor Security',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Thank you for your application!</h2>
