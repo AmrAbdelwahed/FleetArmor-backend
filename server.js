@@ -61,15 +61,10 @@ app.use(express.json({ limit: '10kb' })); // Body parser with size limit
 // Email transporter configuration
 const createTransporter = () => {
     return nodemailer.createTransport({
-        host: 'smtp.mail.yahoo.com', // Yahoo's SMTP server
-        port: 465, // SSL port
-        secure: true, // Use SSL
+        service: process.env.EMAIL_SERVICE,
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_APP_PASSWORD
-        },
-        tls: {
-            rejectUnauthorized: false // Bypass SSL certificate validation (use with caution)
         }
     });
 };
