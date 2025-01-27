@@ -31,11 +31,11 @@ const logger = winston.createLogger({
     ]
 });
 
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.simple()
-    }));
-}
+// if (process.env.NODE_ENV !== 'production') {
+//     logger.add(new winston.transports.Console({
+//         format: winston.format.simple()
+//     }));
+// }
 
 const app = express();
 
@@ -59,15 +59,17 @@ app.use('/api/submit-quote', limiter);
 app.use(express.json({ limit: '10kb' })); // Body parser with size limit
 
 // Email transporter configuration
-const createTransporter = () => {
-    return nodemailer.createTransport({
-        service: process.env.EMAIL_SERVICE,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_APP_PASSWORD
-        }
-    });
-};
+const transporter = nodemailer.createTransport({
+    host: 'mail.spacemail.com', // Replace with the actual SMTP host for spacemail
+    port: 465, // Replace with the actual port for spacemail
+    secure: true, // true for 465, false for other ports
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_APP_PASSWORD
+    },
+    debug: true,
+    logger: true
+});
 
 // Add these validation middlewares after the existing validateQuoteRequest
 const validateGuardRequest = [
