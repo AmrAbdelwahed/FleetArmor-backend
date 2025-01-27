@@ -203,8 +203,6 @@ app.post('/api/submit-company', validateCompanyRequest, async (req, res, next) =
             city, securityGuardType, numberOfGuards, service, details 
         } = req.body;
 
-        const transporter = createTransporter();
-
         // Email to admin
         const adminMailOptions = {
             from: process.env.EMAIL_USER,
