@@ -24,3 +24,10 @@
 {"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:19:24.206Z"}
 {"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:22:33.676Z"}
 {"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:24:02.903Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:38:37.052Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:40:13.001Z"}
+{"error":"createTransporter is not defined","level":"error","message":"Error:","method":"POST","path":"/api/submit-guard","stack":"ReferenceError: createTransporter is not defined\n    at C:\\Users\\Temp\\quote-backend\\server.js:129:29\n    at Layer.handle [as handle_request] (C:\\Users\\Temp\\quote-backend\\node_modules\\express\\lib\\router\\layer.js:95:5)\n    at next (C:\\Users\\Temp\\quote-backend\\node_modules\\express\\lib\\router\\route.js:149:13)\n    at middleware (C:\\Users\\Temp\\quote-backend\\node_modules\\express-validator\\lib\\middlewares\\check.js:16:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)","timestamp":"2025-01-27T03:40:14.856Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:44:16.754Z"}
+{"email":"amrabdelwahed00@gmail.com","level":"info","message":"Guard application submitted successfully","timestamp":"2025-01-27T03:44:21.406Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-01-27T03:45:03.935Z"}
+{"email":"amr@gmail.com","level":"info","message":"Guard application submitted successfully","timestamp":"2025-01-27T03:45:22.476Z"}

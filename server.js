@@ -31,11 +31,11 @@ const logger = winston.createLogger({
     ]
 });
 
-// if (process.env.NODE_ENV !== 'production') {
-//     logger.add(new winston.transports.Console({
-//         format: winston.format.simple()
-//     }));
-// }
+if (process.env.NODE_ENV !== 'production') {
+    logger.add(new winston.transports.Console({
+        format: winston.format.simple()
+    }));
+}
 
 const app = express();
 
@@ -66,9 +66,7 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_APP_PASSWORD
-    },
-    debug: true,
-    logger: true
+    }
 });
 
 // Add these validation middlewares after the existing validateQuoteRequest
@@ -125,8 +123,6 @@ app.post('/api/submit-guard', validateGuardRequest, async (req, res, next) => {
         }
 
         const { fullName, email, phone, city, license, yearsOfExperience, details } = req.body;
-
-        const transporter = createTransporter();
 
         // Email to admin
         const adminMailOptions = {
