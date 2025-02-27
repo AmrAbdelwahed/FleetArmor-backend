@@ -91,7 +91,6 @@ const validateCompanyRequest = [
     body('firstName').trim().notEmpty().withMessage('First name is required'),
     body('lastName').trim().notEmpty().withMessage('Last name is required'),
     body('city').trim().notEmpty().withMessage('City is required'),
-    body('securityGuardType').trim().notEmpty().withMessage('Security guard type is required'),
     body('numberOfGuards').trim().notEmpty().withMessage('Number of guards is required'),
     body('service').trim().notEmpty().withMessage('Service type is required'),
     body('details').trim().isLength({ max: 1000 }).withMessage('Details must not exceed 1000 characters')
@@ -200,7 +199,7 @@ app.post('/api/submit-company', validateCompanyRequest, async (req, res, next) =
 
         const { 
             companyName, email, phone, firstName, lastName, 
-            city, securityGuardType, numberOfGuards, service, details 
+            city, numberOfGuards, service, details 
         } = req.body;
 
         // Email to admin
@@ -218,7 +217,6 @@ app.post('/api/submit-company', validateCompanyRequest, async (req, res, next) =
                         <p><strong>Email:</strong> ${email}</p>
                         <p><strong>Phone:</strong> ${phone}</p>
                         <p><strong>City:</strong> ${city}</p>
-                        <p><strong>Security Guard Type:</strong> ${securityGuardType}</p>
                         <p><strong>Number of Guards:</strong> ${numberOfGuards}</p>
                         <p><strong>Service Type:</strong> ${service}</p>
                         <h3>Additional Details:</h3>
@@ -242,7 +240,6 @@ app.post('/api/submit-company', validateCompanyRequest, async (req, res, next) =
                            Our team will contact you within 24-48 business hours.</p>
                         
                         <h3>Request Details:</h3>
-                        <p><strong>Security Guard Type:</strong> ${securityGuardType}</p>
                         <p><strong>Number of Guards:</strong> ${numberOfGuards}</p>
                         <p><strong>Service Type:</strong> ${service}</p>
                         <p><strong>City:</strong> ${city}</p>
